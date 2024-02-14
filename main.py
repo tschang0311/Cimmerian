@@ -1,18 +1,12 @@
 import pygame
 import sys
 
-# CONFIG section (can be moved to a .config file for full game)
-START_POS = "A"
-
 # Initialize Pygame
 pygame.init()
 
 # Set up the display
 screen = pygame.display.set_mode((640, 480))
-pygame.display.set_caption('Sound on Key Press')
-
-# Load the sounds
-sound = pygame.mixer.Sound('sounds/step.wav')  # Replace 'sound.wav' with your sound file
+pygame.display.set_caption('Cimmerian')
 
 # Walkable Map 1-0 and qwerty
 keyboard_map = {
@@ -57,44 +51,71 @@ keyboard_map = {
     'm': ['n', 'j', 'k']
 }
 
-# Nice little helper guys
+# Function to move the player on the keyboard game field
 
-# Assuming keyboard_map is defined as before
 
 def move_player(current_position, move):
     if move in keyboard_map[current_position]:
-        # Move is valid, update the position
         current_position = move
         print(f"Moved to '{current_position}'.")
     else:
-        # Move is invalid, position remains unchanged
-        print(f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
-    
+        print(
+            f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
+    return current_position
+
+# Function to handle key tap, triggering a movement if valid
+
+
+def on_key_tap(key, current_position):
+    # Convert pygame key name to a single character (if applicable)
+    try:
+        char = chr(key)
+        if char in keyboard_map:
+            print(f"Tapped {char}")
+    except ValueError:
+        pass  # Key pressed does not correspond to a character
+
+# Function to handle key hold, triggering a movement if valid
+
+
+def on_key_hold(key, current_position):
+    # Convert pygame key name to a single character (if applicable)
+    try:
+        char = chr(key)
+        if char in keyboard_map:
+            new_position = move_player(current_position, char)
+            return new_position
+    except ValueError:
+        pass  # Key pressed does not correspond to a character
     return current_position
 
 
-
-
-
+# Dictionary to track key holds and taps
+key_press_times = {}
+current_position = 'g'  # Starting position of the player on the keyboard
 
 # Main game loop
 running = True
-current_position = START_POS
+clock = pygame.time.Clock()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            # Play sound on spacebar press
-            if event.key == pygame.K_SPACE:
-                sound.play()
-            character = event.unicode
-            if character:
-                current_position = move_player(current_position.lower(), character)
-                print(current_position)
+            # Record the start time of the key press if not already pressed
+            if event.key not in key_press_times:
+                key_press_times[event.key] = pygame.time.get_ticks()
+        elif event.type == pygame.KEYUP:
+            # Calculate the duration of the key press
+            duration = pygame.time.get_ticks() - key_press_times.pop(event.key,
+                                                                     pygame.time.get_ticks())
+            if duration <= 200:  # Threshold for a tap
+                on_key_tap(event.key, current_position)
+            elif duration > 200:  # Threshold for a hold
+                current_position = on_key_hold(event.key, current_position)
 
-    # Update the display
-    pygame.display.flip()
+    # Cap the frame rate
+    clock.tick(60)
 
 # Quit Pygame
 pygame.quit()
