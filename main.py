@@ -9,7 +9,7 @@ screen = pygame.display.set_mode((640, 480))
 pygame.display.set_caption('Cimmerian')
 
 # Load sounds
-step = pygame.mixer.Sound('sound.wav')
+step = pygame.mixer.Sound('sounds/step.wav')
 
 # Walkable Map 1-0 and qwerty
 keyboard_map = {
