@@ -1,6 +1,9 @@
 import pygame
 import sys
 
+# CONFIG section (can be moved to a .config file for full game)
+START_POS = "A"
+
 # Initialize Pygame
 pygame.init()
 
@@ -8,7 +11,7 @@ pygame.init()
 screen = pygame.display.set_mode((640, 480))
 pygame.display.set_caption('Sound on Key Press')
 
-# Load the sound
+# Load the sounds
 sound = pygame.mixer.Sound('sounds/step.wav')  # Replace 'sound.wav' with your sound file
 
 # Walkable Map 1-0 and qwerty
@@ -54,9 +57,29 @@ keyboard_map = {
     'm': ['n', 'j', 'k']
 }
 
+# Nice little helper guys
+
+# Assuming keyboard_map is defined as before
+
+def move_player(current_position, move):
+    if move in keyboard_map[current_position]:
+        # Move is valid, update the position
+        current_position = move
+        print(f"Moved to '{current_position}'.")
+    else:
+        # Move is invalid, position remains unchanged
+        print(f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
+    
+    return current_position
+
+
+
+
+
 
 # Main game loop
 running = True
+current_position = START_POS
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -65,6 +88,10 @@ while running:
             # Play sound on spacebar press
             if event.key == pygame.K_SPACE:
                 sound.play()
+            character = event.unicode
+            if character:
+                current_position = move_player(current_position.lower(), character)
+                print(current_position)
 
     # Update the display
     pygame.display.flip()
