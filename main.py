@@ -8,6 +8,9 @@ pygame.init()
 screen = pygame.display.set_mode((640, 480))
 pygame.display.set_caption('Cimmerian')
 
+# Load sounds
+step = pygame.mixer.Sound('sound.wav')
+
 # Walkable Map 1-0 and qwerty
 keyboard_map = {
     '1': ['2', 'q'],
@@ -83,6 +86,7 @@ def on_key_hold(key, current_position):
     try:
         char = chr(key)
         if char in keyboard_map:
+            step.play()
             new_position = move_player(current_position, char)
             return new_position
     except ValueError:
