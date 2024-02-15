@@ -10,6 +10,7 @@ pygame.display.set_caption('Cimmerian')
 
 # Load sounds
 step = pygame.mixer.Sound('sounds/step.wav')
+Welcome = pygame.mixer.Sound('sounds/WelcomeToMarshiniMansion.wav')
 
 # Walkable Map 1-0 and qwerty
 keyboard_map = {
@@ -101,6 +102,7 @@ current_position = 'g'  # Starting position of the player on the keyboard
 # Main game loop
 running = True
 clock = pygame.time.Clock()
+Welcome.play()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
