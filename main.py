@@ -11,6 +11,7 @@ pygame.display.set_caption('Cimmerian')
 # Load sounds
 step = pygame.mixer.Sound('sounds/step.wav')
 Welcome = pygame.mixer.Sound('sounds/WelcomeToMarshiniMansion.wav')
+IWouldNot = pygame.mixer.Sound('sounds/IWouldNot.wav')
 
 # Walkable Map 1-0 and qwerty
 keyboard_map = {
@@ -62,9 +63,12 @@ def move_player(current_position, move):
     if move in keyboard_map[current_position]:
         current_position = move
         print(f"Moved to '{current_position}'.")
+        step.play()
     else:
         print(
             f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
+        IWouldNot.play()
+        
     return current_position
 
 # Function to handle key tap, triggering a movement if valid
@@ -87,7 +91,6 @@ def on_key_hold(key, current_position):
     try:
         char = chr(key)
         if char in keyboard_map:
-            step.play()
             new_position = move_player(current_position, char)
             return new_position
     except ValueError:
