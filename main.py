@@ -12,6 +12,10 @@ pygame.display.set_caption('Cimmerian')
 step = pygame.mixer.Sound('sounds/step.wav')
 Welcome = pygame.mixer.Sound('sounds/WelcomeToMarshiniMansion.wav')
 IWouldNot = pygame.mixer.Sound('sounds/IWouldNot.wav')
+normal_step = pygame.mixer.SoundType("sounds/Footsteps/NormalFootsteps.wav")
+mud_step = pygame.mixer.SoundType("sounds/Footsteps/MuddyFootsteps.wav")
+puddle_step = pygame.mixer.SoundType("sounds/Footsteps/PuddleFootsteps.wav")
+
 
 # Walkable Map 1-0 and qwerty
 keyboard_map = {
@@ -55,64 +59,134 @@ keyboard_map = {
     'n': ['b', 'h', 'j', 'm'],
     'm': ['n', 'j', 'k']
 }
-monster_position = 'm'
-monster_path = ['m', 'n', 'b', 'v', 'c', 'x', 'c', 'v', 'b', 'n']
-monster_path_index = 0  # Keeps track of where the monster is on its path
+
+monsters_data = [
+    [  # Level 1
+        {"position": "m", "path": ["m", "n", "b", "v", "c", "x", "c", "v",
+                                   "b", "n"], "path_index": 0, "speed": 5, "move_counter": 0},
+        # More monsters for level 1
+    ],
+    [  # Level 2
+        {"position": "g", "path": ["g", "f", "e", "d", "c"],
+            "path_index": 0, "speed": 3, "move_counter": 0},
+        # More monsters for level 2
+    ],
+    [  # Level 3
+        {"position": "g", "path": ["g", "f", "e", "d", "c"],
+            "path_index": 0, "speed": 3, "move_counter": 0},
+        # More monsters for level 3
+    ],
+    [  # Level 4
+        {"position": "g", "path": ["g", "f", "e", "d", "c"],
+            "path_index": 0, "speed": 3, "move_counter": 0},
+        # More monsters for level 4
+    ]
+]
 
 player_keys = 0  # Initialize the counter for keys in the player's inventory
+current_level = 0  # Start on level 1
 
 
-def move_monster():
-    global monster_position, monster_path_index
-    # Example for a predetermined path:
-    monster_path_index = (monster_path_index + 1) % len(monster_path)
-    monster_position = monster_path[monster_path_index]
+def move_monsters():
+    global current_level, monsters_data
+    for monster in monsters_data[current_level]:
+        # Check if it's time for this monster to move
+        if monster['move_counter'] >= monster['speed']:
+            # Move the monster along its path
+            monster['path_index'] = (
+                monster['path_index'] + 1) % len(monster['path'])
+            monster['position'] = monster['path'][monster['path_index']]
+            # Reset the move counter for this monster
+            monster['move_counter'] = 0
+        else:
+            # Increment the move counter
+            monster['move_counter'] += 1
     # print(f"Monster moves to '{monster_position}'.")
 
 
-def check_monster_proximity(player_position, monster_position):
-    # Check if the monster is 1 space away
-    if monster_position in keyboard_map[player_position]:
-        print("Monster is 1 space away!")
-        return
-    # Check if the monster is 2 spaces away
-    for adjacent in keyboard_map[player_position]:
-        if monster_position in keyboard_map[adjacent]:
-            # print("Monster is 2 spaces away!")
-            return
-    # If the monster is farther than 2 spaces away, do nothing
+def check_monster_proximity(player_position):
+    global current_level, monsters_data
+    for monster in monsters_data[current_level]:
+        # Directly adjacent check (1 space away)
+        if monster['position'] in keyboard_map[player_position]:
+            print("Monster is 1 space away!")
+            return  # Assuming only need to warn once per check
+
+        # Check if the monster is 2 spaces away
+        for adjacent in keyboard_map[player_position]:
+            if monster['position'] in keyboard_map[adjacent]:
+                # print("Monster is 2 spaces away!")
+                return  # Assuming only need to warn once per check
+    # If no monster is 1 or 2 spaces away, do nothing
 
 
 def check_collision(player_position):
-    if player_position == monster_position:
-        print("Caught by the monster! Game Over.")
-        pygame.quit()
-        sys.exit()
+    global current_level, monsters_data
+    # Loop through all monsters on the current level
+    for monster in monsters_data[current_level]:
+        if player_position == monster['position']:
+            print("Caught by the monster! Game Over.")
+            pygame.quit()
+            sys.exit()
+            break  # Exit the loop after finding a collision
 
 
-# New Play Map with walls ('w') and traps ('t')
-play_map = {
-    'f': 'w', 'b': 'w', 'p': 'w', '3': 'w',  # Walls
-    'e': 't', 'h': 't',            # Traps
-    'k': 'key',  # Assuming 'k' is the location for the key
-    'd': 'door',  # Assuming 'd' is the location for the door
-    # You can expand this map with more elements and structure
-}
+# Play Maps with walls ('w') and traps ('t')
+play_maps = [
+    {  # Level 1
+        'f': 'wall', 'b': 'wall', 'p': 'wall', '3': 'wall',
+        'e': 'trap', 'h': 'trap',
+        'w': 'key',
+        'd': 'door',
+        'p': 'ladder_down'  # Ladder going down to the next level
+    },
+    {  # Level 2
+        # Define the layout for level 2 with its own set of walls, traps, etc.
+        'f': 'wall',  # Example entries
+        'n': 'trap',
+        'm': 'key',
+        'o': 'door',
+        'p': 'ladder_up',
+        'q': 'ladder_down',  # Assuming a way back up
+        # Continue defining level 2...
+    },
+    {  # Level 3
+        # Define the layout for level 3 with its own set of walls, traps, etc.
+        'f': 'wall',  # Example entries
+        'n': 'trap',
+        'm': 'key',
+        'o': 'door',
+        'q': 'ladder_up',
+        'z': 'ladder_down',  # Assuming a way back up
+        # Continue defining level 3...
+    },
+    {  # Level 4
+        # Define the layout for level 4 with its own set of walls, traps, etc.
+        'f': 'wall',  # Example entries
+        'n': 'trap',
+        'm': 'key',
+        'o': 'door',
+        'z': 'ladder_up',  # Assuming a way back up
+        # Continue defining level 4...
+    }
+]
 
 
 def is_wall(position):
-    return play_map.get(position, '') == 'w'
+    global current_level
+    return play_maps[current_level].get(position, '') == 'wall'
 
 
 def is_trap(position):
-    return play_map.get(position, '') == 't'
+    global current_level
+    return play_maps[current_level].get(position, '') == 'trap'
 
 # Function to move the player on the keyboard game field
 
 
 def move_player(current_position, move, shift_pressed=False):
-    global player_keys  # Access the global key counter
-
+    global player_keys, current_level
+    play_map = play_maps[current_level]  # Use the current level's play map
     if shift_pressed:
         print(f"Shift + Move attempted to '{move}'.")
     else:
@@ -122,23 +196,25 @@ def move_player(current_position, move, shift_pressed=False):
             player_keys += 1  # Increment the key counter
             del play_map[move]  # Remove the key from the map
             current_position = move
+        elif play_map.get(move) == 'ladder_down':
+            print("Descending to the next level...")
+            current_level += 1  # Move down a level
+            current_position = move
+        elif play_map.get(move) == 'ladder_up':
+            print("Climbing back up to the previous level...")
+            current_level -= 1  # Move up a level
+            current_position = move
         elif play_map.get(move) == 'door':
-            if player_keys > 0:
-                print(
-                    "You've opened the door with one of your keys. The door remains open.")
-                player_keys -= 1  # Use up a key
-                play_map[move] = 'open_door'  # Mark the door as open
-            else:
-                print("The door is locked. You need a key to open it.")
-                return current_position
-        elif play_map.get(move) in ['w']:
-            if play_map.get(move) == 'w':
+            print("The door is locked. You need a key and to 'Shift+hold' to open it.")
+            return current_position  # Prevent moving through the door without Shift+hold
+        elif play_map.get(move) in ['wall']:
+            if play_map.get(move) == 'wall':
                 print(f"Wall at '{move}'. Move not allowed.")
                 return current_position
         elif move in keyboard_map[current_position]:
             current_position = move
             print(f"Moved to '{current_position}'.")
-            step.play()
+            puddle_step.play()
             if is_trap(current_position):
                 print("Stepped on a trap! Game Over.")
                 pygame.quit()
@@ -151,7 +227,7 @@ def move_player(current_position, move, shift_pressed=False):
     return current_position
 
 
-# New function to inspect traps
+# Function to inspect traps
 
 
 def inspect(key):
@@ -165,16 +241,29 @@ def inspect(key):
     except ValueError:
         pass
 
-# Function to handle key tap, triggering a movement if valid
-
 
 def shift_hold_action(key):
+    global player_keys, play_maps, current_level
     try:
         char = chr(key)
-        if char in keyboard_map:
-            print(f"Shift + hold action completed with key: {chr(key)}")
+        # Assume doors are interacted with adjacent tiles; define logic to determine the target tile
+        # For simplicity, this example assumes current_position is directly usable to check for a door
+
+        if char in keyboard_map:  # Assuming 'char' is a movement key
+            play_map = play_maps[current_level]
+
+            if char in play_map and play_map[char] == 'door':
+                if player_keys > 0:
+                    print(
+                        "You've opened the door with one of your keys. The door remains open.")
+                    player_keys -= 1
+                    play_map[char] = 'open_door'  # Mark the door as open
+                else:
+                    print("The door is locked. You need a key to open it.")
+            else:
+                print("There's no door in the direction you're trying to open.")
     except ValueError:
-        pass
+        pass  # Key pressed does not correspond to a character
 
 
 def shift_tap_action(key):
@@ -186,10 +275,8 @@ def shift_tap_action(key):
     except ValueError:
         pass  # Key pressed does not correspond to a character
 
-# Modify on_key_tap to include inspect functionality
 
-
-def on_key_tap(key, current_position, shift_pressed=False):
+def on_key_tap(key, shift_pressed=False):
     if shift_pressed:
         print(f"Shift + Tapped {chr(key)}")
     else:
@@ -212,7 +299,7 @@ def on_key_hold(key, current_position):
 
 # Dictionary to track key holds and taps
 key_press_times = {}
-current_position = 'g'  # Starting position of the player on the keyboard
+current_position = 'a'  # Starting position of the player on the keyboard
 
 # Monster stuff
 monster_move_counter = 0
@@ -237,16 +324,16 @@ while running:
                 if shift_pressed:
                     shift_tap_action(event.key)
                 else:
-                    on_key_tap(event.key, current_position)
+                    on_key_tap(event.key)
             else:  # Threshold for a hold
                 if shift_pressed:
                     shift_hold_action(event.key)
                 else:
                     current_position = on_key_hold(event.key, current_position)
-                    check_monster_proximity(current_position, monster_position)
+                    check_monster_proximity(current_position)
     if monster_move_counter >= monster_move_threshold:
-        move_monster()
-        check_monster_proximity(current_position, monster_position)
+        move_monsters()
+        check_monster_proximity(current_position)
         monster_move_counter = 0
     else:
         monster_move_counter += 1
