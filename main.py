@@ -15,6 +15,9 @@ IWouldNot = pygame.mixer.Sound('sounds/IWouldNot.wav')
 normal_step = pygame.mixer.SoundType("sounds/Footsteps/NormalFootsteps.wav")
 mud_step = pygame.mixer.SoundType("sounds/Footsteps/MuddyFootsteps.wav")
 puddle_step = pygame.mixer.SoundType("sounds/Footsteps/PuddleFootsteps.wav")
+DistantMonster = pygame.mixer.SoundType("sounds/Monsters/DistantMonster.wav")
+NearbyMonster = pygame.mixer.SoundType("sounds/Monsters/NearbyMonster.wav")
+AttackMonster = pygame.mixer.SoundType("sounds/Monsters/MonsterAttack.wav")
 
 
 # Walkable Map 1-0 and qwerty
@@ -110,11 +113,13 @@ def check_monster_proximity(player_position):
         # Directly adjacent check (1 space away)
         if monster['position'] in keyboard_map[player_position]:
             print("Monster is 1 space away!")
+            NearbyMonster.play()
             return  # Assuming only need to warn once per check
 
         # Check if the monster is 2 spaces away
         for adjacent in keyboard_map[player_position]:
             if monster['position'] in keyboard_map[adjacent]:
+                DistantMonster.play()
                 # print("Monster is 2 spaces away!")
                 return  # Assuming only need to warn once per check
     # If no monster is 1 or 2 spaces away, do nothing
@@ -126,6 +131,7 @@ def check_collision(player_position):
     for monster in monsters_data[current_level]:
         if player_position == monster['position']:
             print("Caught by the monster! Game Over.")
+            AttackMonster.play()
             pygame.quit()
             sys.exit()
             break  # Exit the loop after finding a collision
