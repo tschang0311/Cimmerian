@@ -56,20 +56,53 @@ keyboard_map = {
     'm': ['n', 'j', 'k']
 }
 
+# New Play Map with walls ('w') and traps ('t')
+play_map = {
+    'f': 'w', 'b': 'w', 'p': 'w',  # Walls
+    'e': 't', 'h': 't',            # Traps
+    # You can expand this map with more elements and structure
+}
+def is_wall(position):
+    return play_map.get(position, '') == 'w'
+
+def is_trap(position):
+    return play_map.get(position, '') == 't'
+
 # Function to move the player on the keyboard game field
 
 
-def move_player(current_position, move):
-    if move in keyboard_map[current_position]:
-        current_position = move
-        print(f"Moved to '{current_position}'.")
-        step.play()
+def move_player(current_position, move, shift_pressed=False):
+    if shift_pressed:
+        print(f"Shift + Move attempted to '{move}'.")
     else:
-        print(
-            f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
-        IWouldNot.play()
+        if is_wall(move):
+            print(f"Wall at '{move}'. Move not allowed.")
+            return current_position  # Prevent moving into a wall
+        elif move in keyboard_map[current_position]:
+            current_position = move
+            print(f"Moved to '{current_position}'.")
+            step.play()
+            if is_trap(current_position):
+                print("Stepped on a trap! Game Over.")
+                pygame.quit()
+                sys.exit()
+        else:
+            print(f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
+            IWouldNot.play()
         
     return current_position
+
+# New function to inspect traps
+def inspect(key):
+    try:
+        char = chr(key)
+        if char in keyboard_map:                                                     
+            if is_trap(char):
+                print(f"Trap inspected at '{char}'. Dangerous!")
+            else:
+                print(f"No trap at '{char}'. Safe to proceed.")
+    except ValueError:
+        pass
 
 # Function to handle key tap, triggering a movement if valid
 
@@ -92,14 +125,12 @@ def shift_tap_action(key):
         pass  # Key pressed does not correspond to a character
 
 
-def on_key_tap(key, current_position):
-    # Convert pygame key name to a single character (if applicable)
-    try:
-        char = chr(key)
-        if char in keyboard_map:
-            print(f"Tapped {char}")
-    except ValueError:
-        pass  # Key pressed does not correspond to a character
+# Modify on_key_tap to include inspect functionality
+def on_key_tap(key, current_position, shift_pressed=False):
+    if shift_pressed:
+        print(f"Shift + Tapped {chr(key)}")
+    else:
+        inspect(key)  # Use tap to inspect for traps
 
 # Function to handle key hold, triggering a movement if valid
 
@@ -123,7 +154,7 @@ current_position = 'g'  # Starting position of the player on the keyboard
 # Main game loop
 running = True
 clock = pygame.time.Clock()
-Welcome.play()
+#Welcome.play()
 while running:
     shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
     for event in pygame.event.get():
