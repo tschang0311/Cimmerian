@@ -59,13 +59,15 @@ monster_position = 'm'
 monster_path = ['m', 'n', 'b', 'v', 'c', 'x', 'c', 'v', 'b', 'n']
 monster_path_index = 0  # Keeps track of where the monster is on its path
 
+player_keys = 0  # Initialize the counter for keys in the player's inventory
+
 
 def move_monster():
     global monster_position, monster_path_index
     # Example for a predetermined path:
     monster_path_index = (monster_path_index + 1) % len(monster_path)
     monster_position = monster_path[monster_path_index]
-    print(f"Monster moves to '{monster_position}'.")
+    # print(f"Monster moves to '{monster_position}'.")
 
 
 def check_monster_proximity(player_position, monster_position):
@@ -76,7 +78,7 @@ def check_monster_proximity(player_position, monster_position):
     # Check if the monster is 2 spaces away
     for adjacent in keyboard_map[player_position]:
         if monster_position in keyboard_map[adjacent]:
-            print("Monster is 2 spaces away!")
+            # print("Monster is 2 spaces away!")
             return
     # If the monster is farther than 2 spaces away, do nothing
 
@@ -90,8 +92,10 @@ def check_collision(player_position):
 
 # New Play Map with walls ('w') and traps ('t')
 play_map = {
-    'f': 'w', 'b': 'w', 'p': 'w',  # Walls
+    'f': 'w', 'b': 'w', 'p': 'w', '3': 'w',  # Walls
     'e': 't', 'h': 't',            # Traps
+    'k': 'key',  # Assuming 'k' is the location for the key
+    'd': 'door',  # Assuming 'd' is the location for the door
     # You can expand this map with more elements and structure
 }
 
@@ -107,12 +111,30 @@ def is_trap(position):
 
 
 def move_player(current_position, move, shift_pressed=False):
+    global player_keys  # Access the global key counter
+
     if shift_pressed:
         print(f"Shift + Move attempted to '{move}'.")
     else:
-        if is_wall(move):
-            print(f"Wall at '{move}'. Move not allowed.")
-            return current_position  # Prevent moving into a wall
+        # Check if the move is to a key location
+        if play_map.get(move) == 'key':
+            print("You've picked up a key!")
+            player_keys += 1  # Increment the key counter
+            del play_map[move]  # Remove the key from the map
+            current_position = move
+        elif play_map.get(move) == 'door':
+            if player_keys > 0:
+                print(
+                    "You've opened the door with one of your keys. The door remains open.")
+                player_keys -= 1  # Use up a key
+                play_map[move] = 'open_door'  # Mark the door as open
+            else:
+                print("The door is locked. You need a key to open it.")
+                return current_position
+        elif play_map.get(move) in ['w']:
+            if play_map.get(move) == 'w':
+                print(f"Wall at '{move}'. Move not allowed.")
+                return current_position
         elif move in keyboard_map[current_position]:
             current_position = move
             print(f"Moved to '{current_position}'.")
@@ -127,6 +149,7 @@ def move_player(current_position, move, shift_pressed=False):
             IWouldNot.play()
 
     return current_position
+
 
 # New function to inspect traps
 
