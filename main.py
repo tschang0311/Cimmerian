@@ -73,6 +73,24 @@ def move_player(current_position, move):
 
 # Function to handle key tap, triggering a movement if valid
 
+def shift_hold_action(key):
+    try:
+        char = chr(key)
+        if char in keyboard_map:
+            print(f"Shift + hold action completed with key: {chr(key)}")
+    except ValueError:
+        pass 
+    
+
+def shift_tap_action(key):
+    # Convert pygame key name to a single character (if applicable)
+    try:
+        char = chr(key)
+        if char in keyboard_map:
+            print(f"Shift + tap action completed with key: {chr(key)}")
+    except ValueError:
+        pass  # Key pressed does not correspond to a character
+
 
 def on_key_tap(key, current_position):
     # Convert pygame key name to a single character (if applicable)
@@ -107,25 +125,27 @@ running = True
 clock = pygame.time.Clock()
 Welcome.play()
 while running:
+    shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            # Record the start time of the key press if not already pressed
             if event.key not in key_press_times:
                 key_press_times[event.key] = pygame.time.get_ticks()
         elif event.type == pygame.KEYUP:
-            # Calculate the duration of the key press
-            duration = pygame.time.get_ticks() - key_press_times.pop(event.key,
-                                                                     pygame.time.get_ticks())
+            duration = pygame.time.get_ticks() - key_press_times.pop(event.key, pygame.time.get_ticks())
             if duration <= 200:  # Threshold for a tap
-                on_key_tap(event.key, current_position)
-            elif duration > 200:  # Threshold for a hold
-                current_position = on_key_hold(event.key, current_position)
+                if shift_pressed:
+                    shift_tap_action(event.key)
+                else:
+                    on_key_tap(event.key, current_position)
+            else:  # Threshold for a hold
+                if shift_pressed:
+                    shift_hold_action(event.key)
+                else:
+                    current_position = on_key_hold(event.key, current_position)
 
-    # Cap the frame rate
     clock.tick(60)
 
-# Quit Pygame
 pygame.quit()
 sys.exit()
