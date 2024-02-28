@@ -55,6 +55,22 @@ keyboard_map = {
     'n': ['b', 'h', 'j', 'm'],
     'm': ['n', 'j', 'k']
 }
+monster_position = 'm'
+monster_path = ['m', 'n', 'b', 'v', 'c', 'x', 'c', 'v', 'b', 'n', 'f']
+monster_path_index = 0  # Keeps track of where the monster is on its path
+
+def move_monster():
+    global monster_position, monster_path_index
+    # Example for a predetermined path:
+    monster_path_index = (monster_path_index + 1) % len(monster_path)
+    monster_position = monster_path[monster_path_index]
+    print(f"Monster moves to '{monster_position}'.")
+
+def check_collision(player_position):
+    if player_position == monster_position:
+        print("Caught by the monster! Game Over.")
+        pygame.quit()
+        sys.exit()
 
 # New Play Map with walls ('w') and traps ('t')
 play_map = {
@@ -69,8 +85,6 @@ def is_trap(position):
     return play_map.get(position, '') == 't'
 
 # Function to move the player on the keyboard game field
-
-
 def move_player(current_position, move, shift_pressed=False):
     if shift_pressed:
         print(f"Shift + Move attempted to '{move}'.")
@@ -105,7 +119,6 @@ def inspect(key):
         pass
 
 # Function to handle key tap, triggering a movement if valid
-
 def shift_hold_action(key):
     try:
         char = chr(key)
@@ -114,7 +127,6 @@ def shift_hold_action(key):
     except ValueError:
         pass 
     
-
 def shift_tap_action(key):
     # Convert pygame key name to a single character (if applicable)
     try:
@@ -124,7 +136,6 @@ def shift_tap_action(key):
     except ValueError:
         pass  # Key pressed does not correspond to a character
 
-
 # Modify on_key_tap to include inspect functionality
 def on_key_tap(key, current_position, shift_pressed=False):
     if shift_pressed:
@@ -133,8 +144,6 @@ def on_key_tap(key, current_position, shift_pressed=False):
         inspect(key)  # Use tap to inspect for traps
 
 # Function to handle key hold, triggering a movement if valid
-
-
 def on_key_hold(key, current_position):
     # Convert pygame key name to a single character (if applicable)
     try:
@@ -150,6 +159,10 @@ def on_key_hold(key, current_position):
 # Dictionary to track key holds and taps
 key_press_times = {}
 current_position = 'g'  # Starting position of the player on the keyboard
+
+# Monster stuff
+monster_move_counter = 0
+monster_move_threshold = 50  # Adjust as needed for speed
 
 # Main game loop
 running = True
@@ -175,7 +188,14 @@ while running:
                     shift_hold_action(event.key)
                 else:
                     current_position = on_key_hold(event.key, current_position)
+    if monster_move_counter >= monster_move_threshold:
+        move_monster()
+        monster_move_counter = 0
+    else:
+        monster_move_counter += 1
 
+    # Check for collision with the monster after player and monster have moved
+    check_collision(current_position)
     clock.tick(60)
 
 pygame.quit()
