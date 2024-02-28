@@ -56,8 +56,9 @@ keyboard_map = {
     'm': ['n', 'j', 'k']
 }
 monster_position = 'm'
-monster_path = ['m', 'n', 'b', 'v', 'c', 'x', 'c', 'v', 'b', 'n', 'f']
+monster_path = ['m', 'n', 'b', 'v', 'c', 'x', 'c', 'v', 'b', 'n']
 monster_path_index = 0  # Keeps track of where the monster is on its path
+
 
 def move_monster():
     global monster_position, monster_path_index
@@ -66,11 +67,26 @@ def move_monster():
     monster_position = monster_path[monster_path_index]
     print(f"Monster moves to '{monster_position}'.")
 
+
+def check_monster_proximity(player_position, monster_position):
+    # Check if the monster is 1 space away
+    if monster_position in keyboard_map[player_position]:
+        print("Monster is 1 space away!")
+        return
+    # Check if the monster is 2 spaces away
+    for adjacent in keyboard_map[player_position]:
+        if monster_position in keyboard_map[adjacent]:
+            print("Monster is 2 spaces away!")
+            return
+    # If the monster is farther than 2 spaces away, do nothing
+
+
 def check_collision(player_position):
     if player_position == monster_position:
         print("Caught by the monster! Game Over.")
         pygame.quit()
         sys.exit()
+
 
 # New Play Map with walls ('w') and traps ('t')
 play_map = {
@@ -78,13 +94,18 @@ play_map = {
     'e': 't', 'h': 't',            # Traps
     # You can expand this map with more elements and structure
 }
+
+
 def is_wall(position):
     return play_map.get(position, '') == 'w'
+
 
 def is_trap(position):
     return play_map.get(position, '') == 't'
 
 # Function to move the player on the keyboard game field
+
+
 def move_player(current_position, move, shift_pressed=False):
     if shift_pressed:
         print(f"Shift + Move attempted to '{move}'.")
@@ -101,16 +122,19 @@ def move_player(current_position, move, shift_pressed=False):
                 pygame.quit()
                 sys.exit()
         else:
-            print(f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
+            print(
+                f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
             IWouldNot.play()
-        
+
     return current_position
 
 # New function to inspect traps
+
+
 def inspect(key):
     try:
         char = chr(key)
-        if char in keyboard_map:                                                     
+        if char in keyboard_map:
             if is_trap(char):
                 print(f"Trap inspected at '{char}'. Dangerous!")
             else:
@@ -119,14 +143,17 @@ def inspect(key):
         pass
 
 # Function to handle key tap, triggering a movement if valid
+
+
 def shift_hold_action(key):
     try:
         char = chr(key)
         if char in keyboard_map:
             print(f"Shift + hold action completed with key: {chr(key)}")
     except ValueError:
-        pass 
-    
+        pass
+
+
 def shift_tap_action(key):
     # Convert pygame key name to a single character (if applicable)
     try:
@@ -137,6 +164,8 @@ def shift_tap_action(key):
         pass  # Key pressed does not correspond to a character
 
 # Modify on_key_tap to include inspect functionality
+
+
 def on_key_tap(key, current_position, shift_pressed=False):
     if shift_pressed:
         print(f"Shift + Tapped {chr(key)}")
@@ -144,6 +173,8 @@ def on_key_tap(key, current_position, shift_pressed=False):
         inspect(key)  # Use tap to inspect for traps
 
 # Function to handle key hold, triggering a movement if valid
+
+
 def on_key_hold(key, current_position):
     # Convert pygame key name to a single character (if applicable)
     try:
@@ -167,7 +198,7 @@ monster_move_threshold = 50  # Adjust as needed for speed
 # Main game loop
 running = True
 clock = pygame.time.Clock()
-#Welcome.play()
+# Welcome.play()
 while running:
     shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
     for event in pygame.event.get():
@@ -177,7 +208,8 @@ while running:
             if event.key not in key_press_times:
                 key_press_times[event.key] = pygame.time.get_ticks()
         elif event.type == pygame.KEYUP:
-            duration = pygame.time.get_ticks() - key_press_times.pop(event.key, pygame.time.get_ticks())
+            duration = pygame.time.get_ticks() - key_press_times.pop(event.key,
+                                                                     pygame.time.get_ticks())
             if duration <= 200:  # Threshold for a tap
                 if shift_pressed:
                     shift_tap_action(event.key)
@@ -188,8 +220,10 @@ while running:
                     shift_hold_action(event.key)
                 else:
                     current_position = on_key_hold(event.key, current_position)
+                    check_monster_proximity(current_position, monster_position)
     if monster_move_counter >= monster_move_threshold:
         move_monster()
+        check_monster_proximity(current_position, monster_position)
         monster_move_counter = 0
     else:
         monster_move_counter += 1
