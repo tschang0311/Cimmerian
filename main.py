@@ -22,6 +22,8 @@ DoorUnlockFail = pygame.mixer.SoundType("sounds/KeysAndDoors/DoorUnlockFail.wav"
 DoorUnlockSuccess = pygame.mixer.SoundType("sounds/KeysAndDoors/DoorUnlockSuccess.wav")
 KeyInspect = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyInspect.wav")
 KeyPickup = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyPickup.wav")
+Trapwire = pygame.mixer.SoundType("sounds/Traps/TrapTripwireNoVoice.wav")
+TrapFall = pygame.mixer.SoundType("sounds/Traps/TrapCollisionWithVoice.wav")
 
 
 
@@ -233,7 +235,8 @@ def move_player(current_position, move, shift_pressed=False):
             print(f"Moved to '{current_position}'.")
             puddle_step.play()
             if is_trap(current_position):
-                # need sound here
+                TrapFall.play()
+                pygame.time.delay(9000)
                 print("Stepped on a trap! Game Over.")
                 pygame.quit()
                 sys.exit()
@@ -254,6 +257,7 @@ def inspect(key):
         if char in keyboard_map:
             if is_trap(char):
                 # need sound here
+                Trapwire.play()
                 print(f"Trap inspected at '{char}'. Dangerous!")
             else:
                 # need sound here
