@@ -255,7 +255,6 @@ def is_adjacent(player_position, target_position):
     return target_position in keyboard_map[player_position]
 
 
-
 def handle_win_condition():
     print("You win!")
     # Play a victory sound
@@ -264,8 +263,6 @@ def handle_win_condition():
     # You might want to implement a simple pygame screen display here
     pygame.quit()
     sys.exit()
-
-# Function to move the player on the keyboard game field
 
 
 def move_player(current_position, move, shift_pressed=False):
@@ -338,22 +335,28 @@ def move_player(current_position, move, shift_pressed=False):
     return current_position
 
 
-# Function to inspect traps
-
-
 def inspect(key, current_position):
     try:
         char = chr(key)
         if char in keyboard_map and char in keyboard_map[current_position]:
-            if is_door(char):
+            monster_here = False
+            # Check if there's a monster at the adjacent position
+            for monster in monsters_data[current_level]:
+                if monster['position'] == char:
+                    monster_here = True
+                    break
+            if monster_here:
+                print("Danger! There's a monster nearby!")
+                # You can play a specific sound for monster detection
+            elif is_door(char):
                 DoorTry.play()
-            if is_wall(char):
+            elif is_wall(char):
                 wall.play()
                 print(f"Sounds like there's a wall at '{char}'!")
-            if is_key(char):
+            elif is_key(char):
                 KeyInspect.play()
                 print(f"Sounds like there's a key at '{char}'!")
-            if is_trap(char):
+            elif is_trap(char):
                 Trapwire.play()
                 print(f"Trap inspected at '{char}'. Dangerous!")
             else:
@@ -405,8 +408,6 @@ def on_key_tap(key, current_position, shift_pressed=False):
         print(f"Shift + Tapped {chr(key)}")
     else:
         inspect(key, current_position)  # Use tap to inspect for traps
-
-# Function to handle key hold, triggering a movement if valid
 
 
 def on_key_hold(key, current_position):
