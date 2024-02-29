@@ -76,7 +76,20 @@ keyboard_map = {
 }
 
 monsters_data = [
-    [  # Level 1
+    [
+        #Level 0 - No Monster
+        {"position": None, "path":[None], "path_index": 0, "speed": 0, "move_counter": 0},
+        ],
+    [
+        #Level 01 - No Monster
+        {"position": None, "path":[None], "path_index": 0, "speed": 0, "move_counter": 0},
+        ],
+    [
+        #Level 02 - Static Monster on G
+        {"position": 'g', "path":['g'], "path_index": 0, "speed": 0, "move_counter": 0},
+        ],
+    [  
+        # Level 1
         {"position": "m", "path": ["m", "n", "b", "v", "c", "x", "c", "v",
                                    "b", "n"], "path_index": 0, "speed": 5, "move_counter": 0},
         # More monsters for level 1
@@ -153,6 +166,22 @@ def check_collision(player_position):
 
 # Play Maps with walls ('w') and traps ('t')
 play_maps = [
+    {   # Level 0
+        'm': 'wall', 'o': 'wall', '0': 'wall',
+        'k': 'door', 'f': 'key',
+        'l': 'ladder_down',
+        },
+    {   # Level 01
+        '2': 'wall', 'w': 'wall', 'x': 'wall',
+        's': 'door', '6': 'key',
+        'y': 'trap', 'h': 'trap', 'n': 'trap',
+        'a': 'ladder_down',
+        },
+    {   # Level 02
+        'm': 'wall', 'o': 'wall', '0': 'wall',
+        'k': 'door', 'f': 'key',
+        'l': 'ladder_down',
+        },
     {  # Level 1
         'f': 'wall', 'b': 'wall', 'p': 'wall', '3': 'wall',
         'e': 'trap', 'h': 'trap',
@@ -236,7 +265,7 @@ def move_player(current_position, move, shift_pressed=False):
             player_keys += 1  # Increment the key counter
             del play_map[move]  # Remove the key from the map
             current_position = move
-        elif play_map.get(move) == 'ladder_down':
+        elif play_map.get(move) == 'ladder_down' and move in keyboard_map[current_position]:
             print("Descending to the next level...")
             ladderDown.play()
             current_level += 1  # Move down a level
