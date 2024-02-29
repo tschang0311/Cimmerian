@@ -85,7 +85,11 @@ monsters_data = [
         {"position": None, "path":[None], "path_index": 0, "speed": 0, "move_counter": 0},
         ],
     [
-        #Level 02 - Static Monster on G
+        #Level 02 - No Monster
+        {"position": None, "path":[None], "path_index": 0, "speed": 0, "move_counter": 0},
+        ],
+    [
+        #Level 03 - Static Monster on G
         {"position": 'g', "path":['g'], "path_index": 0, "speed": 0, "move_counter": 0},
         ],
     [  
@@ -179,8 +183,15 @@ play_maps = [
         },
     {   # Level 02
         'm': 'wall', 'o': 'wall', '0': 'wall',
+        's': 'wall', 'w': 'trap', 'v': 'wall', 'g': 'wall', '6': 'wall',
+        'u': 'wall', 'h': 'trap',
         'k': 'door', 'f': 'key',
         'l': 'ladder_down',
+        },
+    {   # Level 03
+        '2': 'wall', 'w': 'wall', 'x': 'wall',
+        's': 'door', 'h': 'key',
+        'a': 'ladder_down',
         },
     {  # Level 1
         'f': 'wall', 'b': 'wall', 'p': 'wall', '3': 'wall',
@@ -290,9 +301,11 @@ def move_player(current_position, move, shift_pressed=False):
             if current_level == 0:
                 normal_step.play()
             elif current_level == 1:
-                mud_step.play()
+                normal_step.play()
             elif current_level == 2:
                 puddle_step.play()
+            elif current_level == 3:
+                mud_step.play()
             else:
                 mud_step.play()
             if is_trap(current_position):
