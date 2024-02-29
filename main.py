@@ -18,8 +18,10 @@ puddle_step = pygame.mixer.SoundType("sounds/Footsteps/PuddleFootsteps.wav")
 DistantMonster = pygame.mixer.SoundType("sounds/Monsters/DistantMonster.wav")
 NearbyMonster = pygame.mixer.SoundType("sounds/Monsters/NearbyMonster.wav")
 AttackMonster = pygame.mixer.SoundType("sounds/Monsters/MonsterAttack.wav")
-DoorUnlockFail = pygame.mixer.SoundType("sounds/KeysAndDoors/DoorUnlockFail.wav")
-DoorUnlockSuccess = pygame.mixer.SoundType("sounds/KeysAndDoors/DoorUnlockSuccess.wav")
+DoorUnlockFail = pygame.mixer.SoundType(
+    "sounds/KeysAndDoors/DoorUnlockFail.wav")
+DoorUnlockSuccess = pygame.mixer.SoundType(
+    "sounds/KeysAndDoors/DoorUnlockSuccess.wav")
 KeyInspect = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyInspect.wav")
 KeyPickup = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyPickup.wav")
 Trapwire = pygame.mixer.SoundType("sounds/Traps/TrapTripwireNoVoice.wav")
@@ -27,7 +29,6 @@ TrapFall = pygame.mixer.SoundType("sounds/Traps/TrapCollisionWithVoice.wav")
 wall = pygame.mixer.SoundType("sounds/Wall.wav")
 ladderUp = pygame.mixer.SoundType("sounds/LadderUp.wav")
 ladderDown = pygame.mixer.SoundType("sounds/LadderDown.wav")
-
 
 
 # Walkable Map 1-0 and qwerty
@@ -156,7 +157,7 @@ play_maps = [
         'e': 'trap', 'h': 'trap',
         'w': 'key',
         'd': 'door',
-        'p': 'ladder_down'  # Ladder going down to the next level
+        'p': 'ladder_down',  # Ladder going down to the next level
     },
     {  # Level 2
         # Define the layout for level 2 with its own set of walls, traps, etc.
@@ -184,7 +185,8 @@ play_maps = [
         'n': 'trap',
         'm': 'key',
         'o': 'door',
-        'z': 'ladder_up',  # Assuming a way back up
+        'z': 'ladder_up',
+        'g': 'goal'  # Assuming a way back up
         # Continue defining level 4...
     }
 ]
@@ -198,6 +200,16 @@ def is_wall(position):
 def is_trap(position):
     global current_level
     return play_maps[current_level].get(position, '') == 'trap'
+
+
+def handle_win_condition():
+    print("You win!")
+    # Play a victory sound
+    # victorySound.play()  # Assume you have a victory sound loaded similarly to other sounds
+    # Display a win message or screen
+    # You might want to implement a simple pygame screen display here
+    pygame.quit()
+    sys.exit()
 
 # Function to move the player on the keyboard game field
 
@@ -252,6 +264,12 @@ def move_player(current_position, move, shift_pressed=False):
                 print("Stepped on a trap! Game Over.")
                 pygame.quit()
                 sys.exit()
+            if play_map.get(move) == 'goal':
+                print("Congratulations! You've reached the goal and won the game!")
+                # Here, you could either exit the game or trigger a win sequence
+                handle_win_condition()
+                running = False  # This stops the game loop
+                return current_position  # Optionally return early
         else:
             print(
                 f"Cannot move to '{move}' from '{current_position}'. Move is not valid.")
@@ -369,7 +387,7 @@ while running:
                     shift_hold_action(event.key)
                 else:
                     current_position = on_key_hold(event.key, current_position)
-                    #check_monster_proximity(current_position)
+                    # check_monster_proximity(current_position)
     if monster_move_counter >= monster_move_threshold:
         move_monsters(current_position)
         # check_monster_proximity(current_position)
