@@ -256,7 +256,6 @@ def inspect(key):
         char = chr(key)
         if char in keyboard_map:
             if is_trap(char):
-                # need sound here
                 Trapwire.play()
                 print(f"Trap inspected at '{char}'. Dangerous!")
             else:
