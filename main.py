@@ -18,6 +18,7 @@ puddle_step = pygame.mixer.SoundType("sounds/Footsteps/PuddleFootsteps.wav")
 DistantMonster = pygame.mixer.SoundType("sounds/Monsters/DistantMonster.wav")
 NearbyMonster = pygame.mixer.SoundType("sounds/Monsters/NearbyMonster.wav")
 AttackMonster = pygame.mixer.SoundType("sounds/Monsters/MonsterAttack.wav")
+DoorTry = pygame.mixer.SoundType("Sounds/KeysAndDoors/DoorUnlockFail.wav")
 DoorUnlockFail = pygame.mixer.SoundType(
     "sounds/KeysAndDoors/DoorUnlockFail.wav")
 DoorUnlockSuccess = pygame.mixer.SoundType(
@@ -142,7 +143,7 @@ def check_collision(player_position):
     # Loop through all monsters on the current level
     for monster in monsters_data[current_level]:
         if player_position == monster['position']:
-            MonsterAttack.play()
+            AttackMonster.play()
             pygame.time.delay(11000)
             print("Caught by the monster! Game Over.")
             pygame.quit()
@@ -196,10 +197,17 @@ def is_wall(position):
     global current_level
     return play_maps[current_level].get(position, '') == 'wall'
 
-
 def is_trap(position):
     global current_level
     return play_maps[current_level].get(position, '') == 'trap'
+
+def is_key(position):
+    global current_level
+    return play_maps[current_level].get(position, '') == 'key'
+
+def is_door(position):
+    global current_level
+    return play_maps[current_level].get(position, '') == 'door'
 
 
 def handle_win_condition():
@@ -285,6 +293,14 @@ def inspect(key):
     try:
         char = chr(key)
         if char in keyboard_map:
+            if is_door(char):
+                DoorTry.play()
+            if is_wall(char):
+                wall.play()
+                print(f"Sounds like there's a wall at '{char}'!")
+            if is_key(char):
+                KeyInspect.play()
+                print(f"Sounds like there's a key at '{char}'!")
             if is_trap(char):
                 Trapwire.play()
                 print(f"Trap inspected at '{char}'. Dangerous!")
@@ -365,7 +381,7 @@ monster_move_threshold = 50  # Adjust as needed for speed
 # Main game loop
 running = True
 clock = pygame.time.Clock()
-# Welcome.play()
+Welcome.play()
 while running:
     shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
     for event in pygame.event.get():
