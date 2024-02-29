@@ -24,6 +24,9 @@ KeyInspect = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyInspect.wav")
 KeyPickup = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyPickup.wav")
 Trapwire = pygame.mixer.SoundType("sounds/Traps/TrapTripwireNoVoice.wav")
 TrapFall = pygame.mixer.SoundType("sounds/Traps/TrapCollisionWithVoice.wav")
+wall = pygame.mixer.SoundType("sounds/Wall.wav")
+ladderUp = pygame.mixer.SoundType("sounds/LadderUp.wav")
+ladderDown = pygame.mixer.SoundType("sounds/LadderDown.wav")
 
 
 
@@ -213,11 +216,11 @@ def move_player(current_position, move, shift_pressed=False):
             current_position = move
         elif play_map.get(move) == 'ladder_down':
             print("Descending to the next level...")
-            # need sound here
+            ladderDown.play()
             current_level += 1  # Move down a level
             current_position = move
         elif play_map.get(move) == 'ladder_up':
-            # need sound here
+            ladderUp.play()
             print("Climbing back up to the previous level...")
             current_level -= 1  # Move up a level
             current_position = move
@@ -227,7 +230,7 @@ def move_player(current_position, move, shift_pressed=False):
             return current_position  # Prevent moving through the door without Shift+hold
         elif play_map.get(move) in ['wall']:
             if play_map.get(move) == 'wall':
-                # need sound here
+                wall,play()
                 print(f"Wall at '{move}'. Move not allowed.")
                 return current_position
         elif move in keyboard_map[current_position]:
@@ -286,7 +289,7 @@ def shift_hold_action(key):
                     DoorUnlockFail.play()
                     print("The door is locked. You need a key to open it.")
             else:
-                # need sound here
+                wall.play()
                 print("There's no door in the direction you're trying to open.")
     except ValueError:
         pass  # Key pressed does not correspond to a character
