@@ -140,8 +140,9 @@ def check_collision(player_position):
     # Loop through all monsters on the current level
     for monster in monsters_data[current_level]:
         if player_position == monster['position']:
+            MonsterAttack.play()
+            pygame.time.delay(11000)
             print("Caught by the monster! Game Over.")
-            AttackMonster.play()
             pygame.quit()
             sys.exit()
             break  # Exit the loop after finding a collision
@@ -230,7 +231,7 @@ def move_player(current_position, move, shift_pressed=False):
             return current_position  # Prevent moving through the door without Shift+hold
         elif play_map.get(move) in ['wall']:
             if play_map.get(move) == 'wall':
-                wall,play()
+                wall.play()
                 print(f"Wall at '{move}'. Move not allowed.")
                 return current_position
         elif move in keyboard_map[current_position]:
