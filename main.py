@@ -100,11 +100,12 @@ player_keys = 0  # Initialize the counter for keys in the player's inventory
 current_level = 0  # Start on level 1
 
 
-def move_monsters():
+def move_monsters(player_position):
     global current_level, monsters_data
     for monster in monsters_data[current_level]:
         # Check if it's time for this monster to move
         if monster['move_counter'] >= monster['speed']:
+            check_monster_proximity(player_position)
             # Move the monster along its path
             monster['path_index'] = (
                 monster['path_index'] + 1) % len(monster['path'])
@@ -237,7 +238,14 @@ def move_player(current_position, move, shift_pressed=False):
         elif move in keyboard_map[current_position]:
             current_position = move
             print(f"Moved to '{current_position}'.")
-            puddle_step.play()
+            if current_level == 0:
+                normal_step.play()
+            elif current_level == 1:
+                mud_step.play()
+            elif current_level == 2:
+                puddle_step.play()
+            else:
+                mud_step.play()
             if is_trap(current_position):
                 TrapFall.play()
                 pygame.time.delay(9000)
@@ -361,10 +369,10 @@ while running:
                     shift_hold_action(event.key)
                 else:
                     current_position = on_key_hold(event.key, current_position)
-                    check_monster_proximity(current_position)
+                    #check_monster_proximity(current_position)
     if monster_move_counter >= monster_move_threshold:
-        move_monsters()
-        check_monster_proximity(current_position)
+        move_monsters(current_position)
+        # check_monster_proximity(current_position)
         monster_move_counter = 0
     else:
         monster_move_counter += 1
