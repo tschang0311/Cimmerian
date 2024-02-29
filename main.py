@@ -251,6 +251,14 @@ def is_door(position):
     global current_level
     return play_maps[current_level].get(position, '') == 'door'
 
+def is_ladder_up(position):
+    global current_level
+    return play_maps[current_level].get(position, '') == 'ladder_up'
+
+def is_ladder_down(position):
+    global current_level
+    return play_maps[current_level].get(position, '') == 'ladder_down'
+
 def is_adjacent(player_position, target_position):
     return target_position in keyboard_map[player_position]
 
@@ -359,6 +367,12 @@ def inspect(key, current_position):
             elif is_trap(char):
                 Trapwire.play()
                 print(f"Trap inspected at '{char}'. Dangerous!")
+            elif is_ladder_up(char):
+                # LadderUp.play() need sound
+                print(f"Ladder up at '{char}")
+            elif is_ladder_down(char):
+                # LadderDown.play() need sound
+                print(f"Ladder down at '{char}")
             else:
                 # need sound here
                 print(f"No trap at '{char}'. Safe to proceed.")
