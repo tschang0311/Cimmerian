@@ -18,6 +18,11 @@ puddle_step = pygame.mixer.SoundType("sounds/Footsteps/PuddleFootsteps.wav")
 DistantMonster = pygame.mixer.SoundType("sounds/Monsters/DistantMonster.wav")
 NearbyMonster = pygame.mixer.SoundType("sounds/Monsters/NearbyMonster.wav")
 AttackMonster = pygame.mixer.SoundType("sounds/Monsters/MonsterAttack.wav")
+DoorUnlockFail = pygame.mixer.SoundType("sounds/KeysAndDoors/DoorUnlockFail.wav")
+DoorUnlockSuccess = pygame.mixer.SoundType("sounds/KeysAndDoors/DoorUnlockSuccess.wav")
+KeyInspect = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyInspect.wav")
+KeyPickup = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyPickup.wav")
+
 
 
 # Walkable Map 1-0 and qwerty
@@ -195,26 +200,32 @@ def move_player(current_position, move, shift_pressed=False):
     play_map = play_maps[current_level]  # Use the current level's play map
     if shift_pressed:
         print(f"Shift + Move attempted to '{move}'.")
+        # what is this
     else:
         # Check if the move is to a key location
         if play_map.get(move) == 'key':
             print("You've picked up a key!")
+            KeyPickup.play()
             player_keys += 1  # Increment the key counter
             del play_map[move]  # Remove the key from the map
             current_position = move
         elif play_map.get(move) == 'ladder_down':
             print("Descending to the next level...")
+            # need sound here
             current_level += 1  # Move down a level
             current_position = move
         elif play_map.get(move) == 'ladder_up':
+            # need sound here
             print("Climbing back up to the previous level...")
             current_level -= 1  # Move up a level
             current_position = move
         elif play_map.get(move) == 'door':
+            DoorUnlockFail.play()
             print("The door is locked. You need a key and to 'Shift+hold' to open it.")
             return current_position  # Prevent moving through the door without Shift+hold
         elif play_map.get(move) in ['wall']:
             if play_map.get(move) == 'wall':
+                # need sound here
                 print(f"Wall at '{move}'. Move not allowed.")
                 return current_position
         elif move in keyboard_map[current_position]:
@@ -222,6 +233,7 @@ def move_player(current_position, move, shift_pressed=False):
             print(f"Moved to '{current_position}'.")
             puddle_step.play()
             if is_trap(current_position):
+                # need sound here
                 print("Stepped on a trap! Game Over.")
                 pygame.quit()
                 sys.exit()
@@ -241,8 +253,10 @@ def inspect(key):
         char = chr(key)
         if char in keyboard_map:
             if is_trap(char):
+                # need sound here
                 print(f"Trap inspected at '{char}'. Dangerous!")
             else:
+                # need sound here
                 print(f"No trap at '{char}'. Safe to proceed.")
     except ValueError:
         pass
@@ -260,13 +274,16 @@ def shift_hold_action(key):
 
             if char in play_map and play_map[char] == 'door':
                 if player_keys > 0:
+                    DoorUnlockSuccess.play()
                     print(
                         "You've opened the door with one of your keys. The door remains open.")
                     player_keys -= 1
                     play_map[char] = 'open_door'  # Mark the door as open
                 else:
+                    DoorUnlockFail.play()
                     print("The door is locked. You need a key to open it.")
             else:
+                # need sound here
                 print("There's no door in the direction you're trying to open.")
     except ValueError:
         pass  # Key pressed does not correspond to a character
@@ -277,6 +294,7 @@ def shift_tap_action(key):
     try:
         char = chr(key)
         if char in keyboard_map:
+            # need sound here
             print(f"Shift + tap action completed with key: {chr(key)}")
     except ValueError:
         pass  # Key pressed does not correspond to a character
