@@ -30,6 +30,8 @@ TrapFall = pygame.mixer.SoundType("sounds/Traps/TrapCollisionWithVoice.wav")
 wall = pygame.mixer.SoundType("sounds/Wall.wav")
 ladderUp = pygame.mixer.SoundType("sounds/LadderUp.wav")
 ladderDown = pygame.mixer.SoundType("sounds/LadderDown.wav")
+flies = pygame.mixer.SoundType("sounds/Soundscape/SoundscapeFlies.wav")
+rats = pygame.mixer.SoundType("sounds/Soundscape/SoundscapeRats.wav")
 
 
 # Walkable Map 1-0 and qwerty
@@ -281,6 +283,10 @@ def move_player(current_position, move, shift_pressed=False):
             ladderDown.play()
             current_level += 1  # Move down a level
             current_position = move
+            if current_level == 2:
+                rats.play()
+            elif current_level == 3:
+                flies.play()
         elif play_map.get(move) == 'ladder_up':
             ladderUp.play()
             print("Climbing back up to the previous level...")
