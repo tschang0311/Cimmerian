@@ -97,7 +97,7 @@ monsters_data = [
     [  
         # Level 1
         {"position": "m", "path": ["m", "n", "b", "v", "c", "x", "c", "v",
-                                   "b", "n"], "path_index": 0, "speed": 5, "move_counter": 0},
+                                   "b", "n"], "path_index": 0, "speed": 20, "move_counter": 0},
         # More monsters for level 1
     ],
     [  # Level 2
@@ -251,6 +251,10 @@ def is_door(position):
     global current_level
     return play_maps[current_level].get(position, '') == 'door'
 
+def is_adjacent(player_position, target_position):
+    return target_position in keyboard_map[player_position]
+
+
 
 def handle_win_condition():
     print("You win!")
@@ -337,10 +341,10 @@ def move_player(current_position, move, shift_pressed=False):
 # Function to inspect traps
 
 
-def inspect(key):
+def inspect(key, current_position):
     try:
         char = chr(key)
-        if char in keyboard_map:
+        if char in keyboard_map and char in keyboard_map[current_position]:
             if is_door(char):
                 DoorTry.play()
             if is_wall(char):
@@ -359,14 +363,12 @@ def inspect(key):
         pass
 
 
-def shift_hold_action(key):
+def shift_hold_action(key, current_position):
     global player_keys, play_maps, current_level
     try:
         char = chr(key)
-        # Assume doors are interacted with adjacent tiles; define logic to determine the target tile
-        # For simplicity, this example assumes current_position is directly usable to check for a door
 
-        if char in keyboard_map:  # Assuming 'char' is a movement key
+        if char in keyboard_map and char in keyboard_map[current_position]:  # Assuming 'char' is a movement key
             play_map = play_maps[current_level]
 
             if char in play_map and play_map[char] == 'door':
@@ -386,6 +388,7 @@ def shift_hold_action(key):
         pass  # Key pressed does not correspond to a character
 
 
+
 def shift_tap_action(key):
     # Convert pygame key name to a single character (if applicable)
     try:
@@ -397,11 +400,11 @@ def shift_tap_action(key):
         pass  # Key pressed does not correspond to a character
 
 
-def on_key_tap(key, shift_pressed=False):
+def on_key_tap(key, current_position, shift_pressed=False):
     if shift_pressed:
         print(f"Shift + Tapped {chr(key)}")
     else:
-        inspect(key)  # Use tap to inspect for traps
+        inspect(key, current_position)  # Use tap to inspect for traps
 
 # Function to handle key hold, triggering a movement if valid
 
@@ -445,16 +448,14 @@ while running:
                 if shift_pressed:
                     shift_tap_action(event.key)
                 else:
-                    on_key_tap(event.key)
+                    on_key_tap(event.key, current_position)
             else:  # Threshold for a hold
                 if shift_pressed:
-                    shift_hold_action(event.key)
+                    shift_hold_action(event.key, current_position)
                 else:
                     current_position = on_key_hold(event.key, current_position)
-                    # check_monster_proximity(current_position)
     if monster_move_counter >= monster_move_threshold:
         move_monsters(current_position)
-        # check_monster_proximity(current_position)
         monster_move_counter = 0
     else:
         monster_move_counter += 1
