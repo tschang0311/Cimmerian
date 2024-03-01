@@ -120,9 +120,9 @@ current_level = 0  # Start on level 1
 def move_monsters(player_position):
     global current_level, monsters_data
     for monster in monsters_data[current_level]:
+        check_monster_proximity(player_position)
         # Check if it's time for this monster to move
         if monster['move_counter'] >= monster['speed']:
-            check_monster_proximity(player_position)
             # Move the monster along its path
             monster['path_index'] = (
                 monster['path_index'] + 1) % len(monster['path'])
@@ -244,10 +244,7 @@ def handle_win_condition():
     print("You win!")
     congrats.play()
     pygame.time.delay(11000)
-    # Play a victory sound
-    # victorySound.play()  # Assume you have a victory sound loaded similarly to other sounds
     # Display a win message or screen
-    # You might want to implement a simple pygame screen display here
     pygame.quit()
     sys.exit()
 
