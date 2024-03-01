@@ -27,12 +27,15 @@ KeyInspect = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyInspect.wav")
 KeyPickup = pygame.mixer.SoundType("sounds/KeysAndDoors/KeyPickup.wav")
 Trapwire = pygame.mixer.SoundType("sounds/Traps/TrapTripwireNoVoice.wav")
 TrapFall = pygame.mixer.SoundType("sounds/Traps/TrapCollisionWithVoice.wav")
-wall = pygame.mixer.SoundType("sounds/Wall.wav")
+wall = pygame.mixer.SoundType("sounds/wall2.wav")
 ladderUp = pygame.mixer.SoundType("sounds/LadderUp.wav")
 ladderDown = pygame.mixer.SoundType("sounds/LadderDown.wav")
 flies = pygame.mixer.SoundType("sounds/Soundscape/SoundscapeFlies.wav")
 rats = pygame.mixer.SoundType("sounds/Soundscape/SoundscapeRats.wav")
-
+intro0 = pygame.mixer.SoundType("sounds/Intro0.wav")
+intro1 = pygame.mixer.SoundType("sounds/intro1.wav")
+intro2 = pygame.mixer.SoundType("sounds/intro2.wav")
+intro3 = pygame.mixer.SoundType("sounds/intro3.wav")
 
 # Walkable Map 1-0 and qwerty
 keyboard_map = {
@@ -290,11 +293,16 @@ def move_player(current_position, move, shift_pressed=False):
         elif play_map.get(move) == 'ladder_down' and move in keyboard_map[current_position]:
             print("Descending to the next level...")
             ladderDown.play()
+            pygame.time.delay(6000)
             current_level += 1  # Move down a level
             current_position = move
-            if current_level == 2:
+            if current_level == 1:
+                intro1.play()
+            elif current_level == 2:
+                intro2.play()
                 rats.play()
             elif current_level == 3:
+                intro3.play()
                 flies.play()
         elif play_map.get(move) == 'ladder_up':
             ladderUp.play()
@@ -391,6 +399,7 @@ def shift_hold_action(key, current_position):
             if char in play_map and play_map[char] == 'door':
                 if player_keys > 0:
                     DoorUnlockSuccess.play()
+                    pygame.time.delay(5000)
                     print(
                         "You've opened the door with one of your keys. The door remains open.")
                     player_keys -= 1
@@ -448,6 +457,9 @@ monster_move_threshold = 50  # Adjust as needed for speed
 running = True
 clock = pygame.time.Clock()
 Welcome.play()
+pygame.time.delay(11000)
+intro0.play()
+
 while running:
     shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
     for event in pygame.event.get():
