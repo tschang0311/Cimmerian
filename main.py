@@ -36,6 +36,9 @@ intro0 = pygame.mixer.SoundType("sounds/Intro0.wav")
 intro1 = pygame.mixer.SoundType("sounds/intro1.wav")
 intro2 = pygame.mixer.SoundType("sounds/intro2.wav")
 intro3 = pygame.mixer.SoundType("sounds/intro3.wav")
+congrats = pygame.mixer.SoundType("sounds/congrats.wav")
+goodLuck = pygame.mixer.SoundType("sounds/goodLuck.wav")
+drips = pygame.mixer.SoundType("sounds/drips.wav")
 
 # Walkable Map 1-0 and qwerty
 keyboard_map = {
@@ -99,25 +102,15 @@ monsters_data = [
         ],
     [  
         # Level 1
-        {"position": "m", "path": ["m", "n", "b", "v", "c", "x", "c", "v",
-                                   "b", "n"], "path_index": 0, "speed": 20, "move_counter": 0},
-        # More monsters for level 1
-    ],
+        {"position": "d", "path": ['d','f','g','h','g','f'], "path_index": 0, "speed": 4, "move_counter": 0},
+        ],
     [  # Level 2
-        {"position": "g", "path": ["g", "f", "e", "d", "c"],
-            "path_index": 0, "speed": 3, "move_counter": 0},
+        {"position": "g", "path": ['g','t','5','4','3','w','3','4','5','t'], "path_index": 0, "speed": 4, "move_counter": 0},
         # More monsters for level 2
-    ],
+        ],
     [  # Level 3
-        {"position": "g", "path": ["g", "f", "e", "d", "c"],
-            "path_index": 0, "speed": 3, "move_counter": 0},
-        # More monsters for level 3
+        {"position": "d", "path": ['d','f','g','h','g','f'], "path_index": 0, "speed": 4, "move_counter": 0},
     ],
-    [  # Level 4
-        {"position": "g", "path": ["g", "f", "e", "d", "c"],
-            "path_index": 0, "speed": 3, "move_counter": 0},
-        # More monsters for level 4
-    ]
 ]
 
 player_keys = 0  # Initialize the counter for keys in the player's inventory
@@ -172,7 +165,6 @@ def check_collision(player_position):
             sys.exit()
             break  # Exit the loop after finding a collision
 
-
 # Play Maps with walls ('w') and traps ('t')
 play_maps = [
     {   # Level 0
@@ -199,42 +191,24 @@ play_maps = [
         'a': 'ladder_down',
         },
     {  # Level 1
-        'f': 'wall', 'b': 'wall', 'p': 'wall', '3': 'wall',
-        'e': 'trap', 'h': 'trap',
-        'w': 'key',
-        'd': 'door',
-        'p': 'ladder_down',  # Ladder going down to the next level
-    },
+        'm': 'wall', 'o': 'wall', '0': 'wall',
+        'k': 'door', 'j': 'key',
+        'l': 'ladder_down',
+        },
     {  # Level 2
-        # Define the layout for level 2 with its own set of walls, traps, etc.
-        'f': 'wall',  # Example entries
-        'n': 'trap',
-        'm': 'key',
-        'o': 'door',
-        'p': 'ladder_up',
-        'q': 'ladder_down',  # Assuming a way back up
-        # Continue defining level 2...
+        '2': 'wall', 'w': 'wall', 'x': 'wall',
+        's': 'door', '8': 'key',
+        'm': 'wall','j':'wall','u':'wall','0':'wall','p':'wall',
+        'i':'trap','k':'trap',
+        'a': 'ladder_down',
     },
     {  # Level 3
-        # Define the layout for level 3 with its own set of walls, traps, etc.
-        'f': 'wall',  # Example entries
-        'n': 'trap',
-        'm': 'key',
-        'o': 'door',
-        'q': 'ladder_up',
-        'z': 'ladder_down',  # Assuming a way back up
-        # Continue defining level 3...
+        'm': 'wall', 'o': 'wall', '0': 'wall',
+        'z': 'wall','x':'wall','c':'wall','n':'wall','m':'wall','t':'wall','y':'wall',
+        '5':'wall','6':'wall','7':'wall',
+        'k': 'door', 'j': 'key',
+        'l': 'goal',
     },
-    {  # Level 4
-        # Define the layout for level 4 with its own set of walls, traps, etc.
-        'f': 'wall',  # Example entries
-        'n': 'trap',
-        'm': 'key',
-        'o': 'door',
-        'z': 'ladder_up',
-        'g': 'goal'  # Assuming a way back up
-        # Continue defining level 4...
-    }
 ]
 
 
@@ -268,6 +242,8 @@ def is_adjacent(player_position, target_position):
 
 def handle_win_condition():
     print("You win!")
+    congrats.play()
+    pygame.time.delay(11000)
     # Play a victory sound
     # victorySound.play()  # Assume you have a victory sound loaded similarly to other sounds
     # Display a win message or screen
@@ -304,6 +280,12 @@ def move_player(current_position, move, shift_pressed=False):
             elif current_level == 3:
                 intro3.play()
                 flies.play()
+            elif current_level == 4:
+                goodLuck.play()
+                drips.play()
+            elif current_level == 5:
+                drips.play()
+                rats.play()
         elif play_map.get(move) == 'ladder_up':
             ladderUp.play()
             print("Climbing back up to the previous level...")
@@ -329,6 +311,10 @@ def move_player(current_position, move, shift_pressed=False):
                 puddle_step.play()
             elif current_level == 3:
                 mud_step.play()
+            elif current_level == 5:
+                puddle_step.play()
+            elif current_level == 6:
+                normal_step.play()
             else:
                 mud_step.play()
             if is_trap(current_position):
